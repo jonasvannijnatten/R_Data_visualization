@@ -1,14 +1,17 @@
 ---
 title: "R - Data visualisatie"
 author: "J.J. van Nijnatten"
+date: '`r format(Sys.time(), ''%d %B %Y'')`'
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: '2'
   html_document:
+    fig_caption: yes
     number_sections: yes
     toc: yes
     toc_depth: 2
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -37,8 +40,8 @@ install.packages(pkgs=c("ggplot2","Hmisc"), repos = "https://cloud.r-project.org
 ```
 Het package library activeren:
 ```{r, eval=TRUE, message=FALSE}
-library(package="ggplot2")
 library(package="Hmisc")
+library(package="ggplot2")
 ```
 ***
 ##  Opbouw van figuren
@@ -56,31 +59,57 @@ data.wide = data.frame(group1, group2)
 ```
 ```{r,results='hide'}
 # reshape data
-(data.long = reshape(data = data.wide, 
+data.long = reshape(data = data.wide, 
                     direction = "long"
                     , varying = c("group1", "group2")
                     , v.names = "score"
-                      ))
+                    , times   = c('pre', 'post') 
+                      )
 ```
 
 
 ```{r}
-ggplot(data.long) + 
-  geom_bar(
-    aes(x=as.factor(time), y=score, fill=as.factor(time)), 
-    position = "dodge", stat = "summary", fun.y = "mean") + 
-  geom_errorbar(
-    aes(x=as.factor(time), y=score), 
-    stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) + 
-  geom_jitter(
-    aes(x = as.factor(time), y = score), 
-    width = .05)
+# plot means and standard deviations
+ggplot(data.long, aes(x=time, y=score, fill=time) ) + 
+  geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
+  geom_errorbar( stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) + 
+  geom_jitter  ( width = .05 )
 ```
-
+To plot standard errors instead of standard deviations replace "mean_sdl" with "mean_se", and it is common use to plot 2 (or 1.96) times the standard error to get an 95% confidence interval, so replace "fun.arg = 1" with "fun.arg = 2".
+```{r}
+ggplot(data.long, aes(x=time, y=score, fill=time) ) + 
+  geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
+  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3 ) + 
+  geom_jitter  ( width = .05 )
+```
 
 ##  Correlatie
 ##  Regressie
 ##  One-way independent samples ANOVA
 ##  Factorial independent samples ANOVA
 ##  One-way repeated measures ANOVA
+Generate dataset
+```{r, echo=TRUE}
+set.seed(01)   # set seed
+nrofsubs  = 20 # set number of subjects
+nrofconds = 3  # set number of conditions
+subj = as.factor(rep(1:nrofsubs,nrofconds))      # create array with subject IDs
+cond = as.factor(rep(LETTERS[1:nrofconds],each=nrofsubs))   # create array with condition values
+score = as.vector( replicate(
+          nrofconds , rnorm(n = nrofsubs, mean = sample(8,1)+10 , sd = sample(5,1) ) 
+        ) )                                     # create array with measurement values
+data.long = data.frame(subj, cond, score);      # combine arrays into a data.frame
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+```
+
+```{r}
+ggplot(data.long, aes(x=cond, y=score, group=1, colour=subj)) + 
+  geom_point(aes(group=subj)) +
+  geom_line    ( stat = "summary", fun.y = "mean", linetype= "dashed", aes(group=subj) ) +
+  geom_line    ( stat = "summary", fun.y = "mean", colour = "black", linetype= "solid", size=2 ) +
+  geom_point   ( stat = "summary", fun.y = "mean", colour = "black", size=2 ) +
+  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, size=1 )
+```
+
+
 ##  Factorial repeated measures ANOVA
