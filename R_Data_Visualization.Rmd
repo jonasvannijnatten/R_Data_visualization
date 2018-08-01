@@ -2,13 +2,13 @@
 title: "R - Data visualisatie"
 author: "J.J. van Nijnatten"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
   html_document:
     number_sections: yes
     toc: yes
     toc_depth: 2
-  pdf_document:
-    toc: yes
-    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -36,8 +36,9 @@ Het package downloaden & installeren:
 install.packages(pkgs=c("ggplot2","Hmisc"), repos = "https://cloud.r-project.org")
 ```
 Het package library activeren:
-```{r, eval=TRUE}
-library("ggplot2")
+```{r, eval=TRUE, message=FALSE}
+library(package="ggplot2")
+library(package="Hmisc")
 ```
 ***
 ##  Opbouw van figuren
