@@ -1,0 +1,85 @@
+---
+title: "R - Data visualisatie"
+author: "J.J. van Nijnatten"
+output:
+  html_document:
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##### contact: J.J.vanNijnatten@uva.nl
+
+##### broncode: https://github.com/jonasvannijnatten/R_Data_Visualization
+
+#   Het doel van datavisualisatie
+##  Wat wil je weergeven?
+##  Hoe kies je de juiste manier van weergeven? (exp. design)
+
+#   Essentiele onderdelen van datavisualisatie
+##  gemiddelde
+##  spreiding
+##  legenda
+##  titel
+
+#   Introductie GGplot2 package
+##  Installatie
+Het package downloaden & installeren:
+``` {r, eval = TRUE, echo=TRUE, results='hide', message=FALSE}
+install.packages(pkgs=c("ggplot2","Hmisc"), repos = "https://cloud.r-project.org")
+```
+Het package library activeren:
+```{r, eval=TRUE}
+library("ggplot2")
+```
+***
+##  Opbouw van figuren
+
+
+#   Voorbeelden
+##  Data-inspectie
+##  Normaliteit
+##  T-test
+```{r}
+# generate data
+group1 = rnorm(n = 40, mean = 25, sd = 6.5)
+group2 = rnorm(n = 40, mean = 35, sd = 6.5)
+data.wide = data.frame(group1, group2)
+```
+```{r,results='hide'}
+# reshape data
+(data.long = reshape(data = data.wide, 
+                    direction = "long"
+                    , varying = c("group1", "group2")
+                    , v.names = "score"
+                      ))
+```
+
+
+```{r}
+ggplot(data.long) + 
+  geom_bar(
+    aes(x=as.factor(time), y=score, fill=as.factor(time)), 
+    position = "dodge", stat = "summary", fun.y = "mean") + 
+  geom_errorbar(
+    aes(x=as.factor(time), y=score), 
+    stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) + 
+  geom_jitter(
+    aes(x = as.factor(time), y = score), 
+    width = .05)
+```
+
+
+##  Correlatie
+##  Regressie
+##  One-way independent samples ANOVA
+##  Factorial independent samples ANOVA
+##  One-way repeated measures ANOVA
+##  Factorial repeated measures ANOVA
