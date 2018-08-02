@@ -2,15 +2,15 @@
 title: "R - Datavisualisatie"
 author: "J.J. van Nijnatten"
 output:
+  pdf_document:
+    fig_caption: yes
+    toc: yes
+    toc_depth: '2'
   html_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
     toc_depth: 2
-  pdf_document:
-    fig_caption: yes
-    toc: yes
-    toc_depth: '2'
 ---
 
 ```{r setup, include=FALSE}
@@ -172,11 +172,11 @@ rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
 
 ```{r}
 ggplot(data.long, aes(x=cond, y=score, group=1, colour=subj)) + 
-  geom_point   (aes ( group = subj ) ) +
+  geom_point   () +
   geom_line    ( linetype= "dashed", aes(group=subj) ) +
-  geom_line    ( stat = "summary", fun.y = "mean", colour = "black", linetype= "solid", size=2 ) +
-  geom_point   ( stat = "summary", fun.y = "mean", colour = "black", size=2 ) +
-  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, size=1 )
+  geom_line    ( stat = "summary", fun.y    = "mean",    size=2, colour = "black", linetype= "solid") +
+  geom_point   ( stat = "summary", fun.y    = "mean",    size=2, colour = "black" ) +
+  geom_errorbar( stat = "summary", fun.data = "mean_se", size=1 , fun.args = 2, width = 0.3)
 ```  
 
 ***  
@@ -201,12 +201,12 @@ rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
 ```
 
 ```{r}
-ggplot(data.long, aes(x=treatment, y=score, group=interaction(control, treatment), colour=control)) + 
+ggplot(data.long, aes(x=treatment, y=score, group=control, colour=control)) + 
   geom_point   (size=1)  +
-  geom_line    (linetype="dashed" ,aes(group=interaction(subj,control), alpha=.5)) +
-  geom_line    ( stat = "summary", fun.y = "mean", size=1.5 , aes(group=control))  +
-  geom_point   ( stat = "summary", fun.y = "mean", size=2 , aes(group=control)) +
-  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, size=1 , aes(group=control))
+  geom_line    (linetype="dashed" ,aes(group=interaction(subj,control), alpha=.5) ) +
+  geom_line    ( stat = "summary", fun.y    = "mean"   , size=1.5 )  +
+  geom_point   ( stat = "summary", fun.y    = "mean"   , size=2   ) +
+  geom_errorbar( stat = "summary", fun.data = "mean_se", size=1 , fun.args = 2, width = 0.3)
 ```
   
 ***  
