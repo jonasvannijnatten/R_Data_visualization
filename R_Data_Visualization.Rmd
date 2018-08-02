@@ -43,13 +43,23 @@ Het package library activeren:
 library(package="Hmisc")
 library(package="ggplot2")
 ```
-***
+
+***  
+\newpage
+
 ##  Opbouw van figuren
 
 
 #   Voorbeelden
-##  Data-inspectie
+##  Data-inspectie  
+***  
+
+\newpage
+
 ##  Normaliteit
+***  
+\newpage
+
 ##  T-test
 ```{r}
 # generate data
@@ -73,7 +83,7 @@ data.long = reshape(data = data.wide,
 ggplot(data.long, aes(x=time, y=score, fill=time) ) + 
   geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
   geom_errorbar( stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) + 
-  geom_jitter  ( width = .05 )
+  geom_point   ( position=position_jitter(width=.1) )
 ```
 To plot standard errors instead of standard deviations replace "mean_sdl" with "mean_se", and it is common use to plot 2 (or 1.96) times the standard error to get an 95% confidence interval, so replace "fun.arg = 1" with "fun.arg = 2".
 ```{r}
@@ -83,8 +93,17 @@ ggplot(data.long, aes(x=time, y=score, fill=time) ) +
   geom_jitter  ( width = .05 )
 ```
 
+***
+\newpage
+
 ##  Correlatie
+***  
+\newpage
+
 ##  Regressie
+***  
+\newpage
+
 ##  One-way independent samples ANOVA
 ```{r, echo=TRUE}
 set.seed(05)   # set seed
@@ -103,9 +122,39 @@ rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
 ggplot(data.long, aes(x=cond, y=score, fill=cond) ) + 
   geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
   geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3 ) + 
-  geom_jitter  ( width = .05 )
+  geom_point   ( position=position_jitter(width = .1) )
 ```
+
+***  
+\newpage
+
 ##  Factorial independent samples ANOVA
+```{r, echo=TRUE}
+set.seed(01)   # set seed
+nrofcondsf1 = 3  # set number of conditions for factor 1
+nrofcondsf2 = 2  # set number of conditions for factor 2
+nrofsubs    = nrofcondsf1*nrofcondsf2*10 # set number of subjects per condition
+subj = as.factor(1:(nrofsubs))      # create array with subject IDs
+treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs/nrofcondsf1))   # create array witht treatment conditions
+control   = as.factor(rep(c("control","experimental"),times=nrofsubs/nrofcondsf2))   # create array with control / experimental
+score = as.vector( replicate(nrofcondsf1, replicate ( 
+          nrofcondsf2 , rnorm(n = (nrofsubs/(nrofcondsf1*nrofcondsf2)), mean = sample(14,1)+10 , sd = sample(5,1) ) 
+        ) ) )                                    # create array with measurement values
+data.long = data.frame(subj, score, treatment, control);      # combine arrays into a data.frame
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+```
+
+```{r}
+ggplot(data.long, aes(x=treatment, y=score, fill=control) ) + 
+  geom_bar     ( stat = "summary", fun.y    = "mean" , position = "dodge") + 
+  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, 
+                 position = position_dodge(width=.9) ) + 
+  geom_point  ( position = position_jitterdodge(jitter.width = .1) )
+```
+
+***  
+\newpage  
+
 ##  One-way repeated measures ANOVA
 Generate dataset
 ```{r, echo=TRUE}
@@ -123,12 +172,41 @@ rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
 
 ```{r}
 ggplot(data.long, aes(x=cond, y=score, group=1, colour=subj)) + 
-  geom_point(aes(group=subj)) +
-  geom_line    ( stat = "summary", fun.y = "mean", linetype= "dashed", aes(group=subj) ) +
+  geom_point   (aes ( group = subj ) ) +
+  geom_line    ( linetype= "dashed", aes(group=subj) ) +
   geom_line    ( stat = "summary", fun.y = "mean", colour = "black", linetype= "solid", size=2 ) +
   geom_point   ( stat = "summary", fun.y = "mean", colour = "black", size=2 ) +
   geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, size=1 )
-```
+```  
 
+***  
+
+\newpage
 
 ##  Factorial repeated measures ANOVA
+
+```{r, echo=TRUE}
+set.seed(02)  # set seed
+nrofcondsf1 = 3  # set number of conditions for factor 1
+nrofcondsf2 = 2  # set number of conditions for factor 2
+nrofsubs    = 10 # set number of subjects 
+subj = as.factor(rep(1:(nrofsubs),times=nrofcondsf1*nrofcondsf2))    # create array with subject IDs
+treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs*nrofcondsf2))   # create array witht treatment conditions
+control   = as.factor(rep(rep(c("control","experimental"),each=nrofsubs),times=nrofcondsf1))   # create array with control / experimental
+score = as.vector( replicate(nrofcondsf1, replicate(nrofcondsf2,    # create array with measurement values
+                             rnorm(n = (nrofsubs), mean = sample(14,1)+10 , sd = sample(5,1)                
+                                   ) ) ) )                  
+data.long = data.frame(subj, score, treatment, control);      # combine arrays into a data.frame
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+```
+
+```{r}
+ggplot(data.long, aes(x=treatment, y=score, group=interaction(control, treatment), colour=control)) + 
+  geom_point   (size=1)  +
+  geom_line    (linetype="dashed" ,aes(group=interaction(subj,control), alpha=.5)) +
+  geom_line    ( stat = "summary", fun.y = "mean", size=1.5 , aes(group=control))  +
+  geom_point   ( stat = "summary", fun.y = "mean", size=2 , aes(group=control)) +
+  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, size=1 , aes(group=control))
+```
+  
+***  
