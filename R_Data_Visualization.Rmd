@@ -1,7 +1,6 @@
 ---
 title: "R - Datavisualisatie"
 author: "J.J. van Nijnatten"
-date: '`r format(Sys.time(), ''%d %B %Y'')`'
 output:
   html_document:
     fig_caption: yes
@@ -35,8 +34,9 @@ knitr::opts_chunk$set(echo = TRUE)
 #   Introductie GGplot2 package
 ##  Installatie
 Het package downloaden & installeren:
-``` {r, eval = TRUE, echo=TRUE, results='hide', message=FALSE}
-install.packages(pkgs=c("ggplot2","Hmisc"), repos = "https://cloud.r-project.org")
+```{r, eval = TRUE, echo=TRUE, results='hide', message=FALSE}
+install.packages(pkgs="ggplot2", repos = "https://www.freestatistics.org/cran/")
+install.packages(pkgs="Hmisc",   repos = "https://www.freestatistics.org/cran/")
 ```
 Het package library activeren:
 ```{r, eval=TRUE, message=FALSE}
@@ -86,6 +86,25 @@ ggplot(data.long, aes(x=time, y=score, fill=time) ) +
 ##  Correlatie
 ##  Regressie
 ##  One-way independent samples ANOVA
+```{r, echo=TRUE}
+set.seed(05)   # set seed
+nrofconds = 3  # set number of conditions
+nrofsubs  = 20 # set number of subjects
+subj = as.factor(1:(nrofsubs*nrofconds))      # create array with subject IDs
+cond = as.factor(rep(LETTERS[1:nrofconds],each=nrofsubs))   # create array with condition values
+score = as.vector( replicate(
+          nrofconds , rnorm(n = nrofsubs, mean = sample(8,1)+10 , sd = sample(5,1) ) 
+        ) )                                     # create array with measurement values
+data.long = data.frame(subj, cond, score);      # combine arrays into a data.frame
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+```
+
+```{r}
+ggplot(data.long, aes(x=cond, y=score, fill=cond) ) + 
+  geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
+  geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3 ) + 
+  geom_jitter  ( width = .05 )
+```
 ##  Factorial independent samples ANOVA
 ##  One-way repeated measures ANOVA
 Generate dataset
