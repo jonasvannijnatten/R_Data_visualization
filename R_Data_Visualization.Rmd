@@ -1,5 +1,5 @@
 ---
-title: "R - Data visualisatie"
+title: "R - Datavisualisatie"
 author: "J.J. van Nijnatten"
 date: '`r format(Sys.time(), ''%d %B %Y'')`'
 output:
