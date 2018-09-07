@@ -58,9 +58,7 @@ library(package=ggplot2)
 
 \newpage
 
-#   Uitleg GGplot2 package
-
-##  Opbouw van figuren
+#   Opbouw van figuren met GGplot2 package
 
 De figuren worden met het GGPlot2 package opgebouwd volgens een bepaalde *grammatica van figuren* die figuren opdeelt in meerdere *lagen*.
 De essentiele lagen zijn *Data*, *Aesthetics* en *Geometries*.
@@ -104,16 +102,6 @@ https://ggplot2.tidyverse.org/reference/
 
 ***
 
-\newpage
-
-#   Voorbeelden
-##  Data-inspectie  
-***  
-
-\newpage
-
-##  Normaliteit
-***  
 \newpage
 
 ##  T-test
