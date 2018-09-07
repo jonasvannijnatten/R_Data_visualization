@@ -2,16 +2,16 @@
 title: "R - Datavisualisatie"
 author: "J.J. van Nijnatten"
 output:
-  html_document:
-    fig_caption: yes
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
   pdf_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
     toc_depth: '2'
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
   word_document:
     toc: yes
     toc_depth: '2'
@@ -61,11 +61,11 @@ library(package=ggplot2)
 #   Opbouw van figuren met GGplot2 package
 
 De figuren worden met het GGPlot2 package opgebouwd volgens een bepaalde *grammatica van figuren* die figuren opdeelt in meerdere *lagen*.
-De essentiele lagen zijn *Data*, *Aesthetics* en *Geometries*.
-- **Data:** Dit zijn de datapunten die je wilt gaan visualizeren
-- **Aes:** Dit bepaald welke data met welke assen, subplots, kleuren of symbolen wordt weergegeven.
-- **Geom:** Dit bepaald in welke vorm de data wordt weergegeven (lijnplot, barplot, boxplot etc.)
-
+De essentiele lagen zijn *Data*, *Aesthetics* en *Geometries*.  
+- **Data**: Dit zijn de datapunten die je wilt gaan visualizeren  
+- **Aes**: Dit bepaald welke data met welke assen, subplots, kleuren of symbolen wordt weergegeven.  
+- **Geom**: Dit bepaald in welke vorm de data wordt weergegeven (lijnplot, barplot, boxplot etc.)  
+  
 De eerste stap is het definieren van de *Data* en *Aesthetics* met de functie ggplot() en aes().
 ```{r, eval=TRUE}
 myData = data.frame(varX=rnorm(10,10,2), varY=rnorm(10,35,5))
@@ -81,8 +81,12 @@ De volgende stap is het toevoegen van *geometries* met behulp van een van de *ge
 ggplot(myData, aes(x=varX, y=varY)) + geom_point(col="blue", size=2) 
 ```
 
-We kunnen dit figuur uitbreiden door er meer *Geometries* aan toe te voegen zoald bijvoorbeel lijnen (*geom_line()*).
-Daarnaast zijn de eigenschappen van de verschillende *geoms* individueel aan te passen, zoals bijvoorbeeld kleur een grootte. De volgorde waarin de *geoms* in de code staan is de volgorde waarin ze worden getekend, met de laatste als bovenste laag. In dit figuur zijn bijvoorbeeld de lijnen over de punten heen getekend. Als je de volgorde van *geom_point()* en *geom_line()* omdraait worden de punten over de lijn heen getekend.
+Dit figuur kan worden uitgebreid door er meer *Geometries* aan toe te voegen zoald bijvoorbeel lijnen (*geom_line()*).
+Daarnaast zijn de eigenschappen van de verschillende *geoms* individueel aan te passen, zoals bijvoorbeeld kleur een grootte. De volgorde waarin de *geoms* in de code staan is de volgorde waarin ze worden getekend, met de laatste als bovenste laag. In dit figuur zijn bijvoorbeeld de lijnen over de punten heen getekend. Door de volgorde van *geom_point()* en *geom_line()* om te draaien worden de punten over de lijn heen getekend.
+
+
+Voor een mooi overzicht en toelichting van alle mogelijkheden van het ggplot2 package zie:  
+https://ggplot2.tidyverse.org/reference/
 ```{r, eval=TRUE}
 ggplot(myData, aes(x=varX, y=varY)) + geom_point(col="blue", size=4) + geom_line(col="green", size=1.2)
 ```
@@ -97,12 +101,12 @@ Uitleg van de lagen waaruit een figuur is opgebouwd:
 src="https://www.youtube.com/embed/PiY9hwOkL8U">
 </iframe> 
 
-Voor een mooi overzicht en toelichting van alle mogelijkheden van het ggplot2 package zie:  
-https://ggplot2.tidyverse.org/reference/
 
 ***
 
 \newpage
+
+# Voorbeelden  
 
 ##  T-test
 ```{r}
@@ -140,6 +144,7 @@ To plot standard errors instead of standard deviations replace "mean_sdl" with "
   geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3 ) 
 
 ```
+\newpage  
 Wanneer de data niet normaal verdeeld is dan zijn de gemiddeldes en standaarddeviaties of standdaardfouten geen goede representiatie van de data. In dat geval is het gebruikelijker om de data in een boxplot weer te geven met mediaan en quantielafstanden.
 ```{r}
 ggplot(data.long, aes(x=time, y=score, fill=time) ) +  
@@ -181,6 +186,7 @@ ggplot(data = data, aes(x = experience, y = salary)) +
   geom_text(x = 9, y = 10275, color="blue", 
             label = paste("r =", as.character(round(corr_coef,3))))
 ```
+\newpage  
 Regressieplot:
 ```{r}
 # apply linear regression and obtain regression coefficients
@@ -256,6 +262,7 @@ ggplot(data.long, aes(x=treatment, y=score, fill=control) ) +
                  position = position_dodge(width=.9) ) + 
   geom_point  ( position = position_jitterdodge(jitter.width = .2) )
 ```
+\newpage  
 ```{r, echo=TRUE}
 set.seed(01)   # set seed
 nrofcondsf1 = 3  # set number of conditions for factor 1
