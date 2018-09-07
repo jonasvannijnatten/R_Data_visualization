@@ -2,54 +2,109 @@
 title: "R - Datavisualisatie"
 author: "J.J. van Nijnatten"
 output:
-  pdf_document:
-    fig_caption: yes
-    toc: yes
-    toc_depth: '2'
   html_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
     toc_depth: 2
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: '2'
+  word_document:
+    toc: yes
+    toc_depth: '2'
+header-includes:
+- \usepackage{geometry}
+- \geometry{a4paper, portrait, margin=.75in}
 ---
+
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-##### contact: J.J.vanNijnatten@uva.nl
+contact: J.J.vanNijnatten@uva.nl
 
-##### broncode: https://github.com/jonasvannijnatten/R_Data_Visualization
+broncode: https://github.com/jonasvannijnatten/R_Data_Visualization  
 
-#   Het doel van datavisualisatie
-##  Wat wil je weergeven?
-##  Hoe kies je de juiste manier van weergeven? (exp. design)
+***
 
-#   Essentiele onderdelen van datavisualisatie
-##  gemiddelde
-##  spreiding
-##  legenda
-##  titel
+\newpage
 
-#   Introductie GGplot2 package
+#   Software  
+## Versies  
+software versies gebruikt voor deze handleiding:  
+ - `r R.Version()$version.string`  
+ - ggplot2 versie: `r packageVersion("ggplot2")`, `r packageDate("ggplot2")`  
+ - Hmisc   versie: `r packageVersion("Hmisc")`, `r packageDate("Hmisc")`  
+
+
 ##  Installatie
-Het package downloaden & installeren:
-```{r, eval = TRUE, echo=TRUE, results='hide', message=FALSE}
+Benodigde packages downloaden & installeren:
+```{r, eval = FALSE, echo=TRUE, results='hide', message=FALSE}
 install.packages(pkgs="ggplot2", repos = "https://www.freestatistics.org/cran/")
 install.packages(pkgs="Hmisc",   repos = "https://www.freestatistics.org/cran/")
 ```
-Het package library activeren:
+Benodigde packages activeren:
 ```{r, eval=TRUE, message=FALSE}
-library(package="Hmisc")
-library(package="ggplot2")
+library(package=Hmisc)
+library(package=ggplot2)
 ```
 
 ***
 
 \newpage
 
+#   Uitleg GGplot2 package
+
 ##  Opbouw van figuren
 
+De figuren worden met het GGPlot2 package opgebouwd volgens een bepaalde *grammatica van figuren* die figuren opdeelt in meerdere *lagen*.
+De essentiele lagen zijn *Data*, *Aesthetics* en *Geometries*.
+- **Data:** Dit zijn de datapunten die je wilt gaan visualizeren
+- **Aes:** Dit bepaald welke data met welke assen, subplots, kleuren of symbolen wordt weergegeven.
+- **Geom:** Dit bepaald in welke vorm de data wordt weergegeven (lijnplot, barplot, boxplot etc.)
+
+De eerste stap is het definieren van de *Data* en *Aesthetics* met de functie ggplot() en aes().
+```{r, eval=TRUE}
+myData = data.frame(varX=rnorm(10,10,2), varY=rnorm(10,35,5))
+```
+```{r, eval=FALSE}
+ggplot(myData, aes(x=varX, y=varY))
+```
+
+Dit opent een nieuw figuur waarin de data uit *myData* komt, en *varX* op de x-as zal komen, en *varY* op de y-as zal komen. Er is echter nog niets geplot omdat we nog niet hebben aangegeven hoe de plot eruit moet komen te zien.
+
+De volgende stap is het toevoegen van *geometries* met behulp van een van de *geom_...()* functies, bijv. *geom_point()*.
+```{r, eval=TRUE}
+ggplot(myData, aes(x=varX, y=varY)) + geom_point(col="blue", size=2) 
+```
+
+We kunnen dit figuur uitbreiden door er meer *Geometries* aan toe te voegen zoald bijvoorbeel lijnen (*geom_line()*).
+Daarnaast zijn de eigenschappen van de verschillende *geoms* individueel aan te passen, zoals bijvoorbeeld kleur een grootte. De volgorde waarin de *geoms* in de code staan is de volgorde waarin ze worden getekend, met de laatste als bovenste laag. In dit figuur zijn bijvoorbeeld de lijnen over de punten heen getekend. Als je de volgorde van *geom_point()* en *geom_line()* omdraait worden de punten over de lijn heen getekend.
+```{r, eval=TRUE}
+ggplot(myData, aes(x=varX, y=varY)) + geom_point(col="blue", size=4) + geom_line(col="green", size=1.2)
+```
+
+Uitleg van de *grammatica van figuren*:  
+ <iframe width="500" height="300"
+src="https://www.youtube.com/embed/uiTc55clwuA">
+</iframe> 
+
+Uitleg van de lagen waaruit een figuur is opgebouwd:   
+ <iframe width="500" height="300"
+src="https://www.youtube.com/embed/PiY9hwOkL8U">
+</iframe> 
+
+Voor een mooi overzicht en toelichting van alle mogelijkheden van het ggplot2 package zie:  
+https://ggplot2.tidyverse.org/reference/
+
+***
+
+\newpage
 
 #   Voorbeelden
 ##  Data-inspectie  
@@ -75,31 +130,87 @@ data.long = reshape(data = data.wide,
                     , varying = c("group1", "group2")
                     , v.names = "score"
                     , times   = c('pre', 'post') 
-                      )
+                    )
+
+data.long$time = factor(data.long$time, levels = c("pre","post"))
+
 ```
 
 
 ```{r}
 # plot means and standard deviations
 ggplot(data.long, aes(x=time, y=score, fill=time) ) + 
+  # plot de gemiddeldes voor iedere conditie als bargraph
   geom_bar     ( stat = "summary", fun.y    = "mean" ) + 
+  # voeg errobars toe aan de bargraph
   geom_errorbar( stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) + 
-  geom_point   ( position=position_jitter(width=.1) )
+  # plot alle individuele datapunten
+  geom_point   ( position=position_jitter(width = .2, seed=1) )
 ```
 To plot standard errors instead of standard deviations replace "mean_sdl" with "mean_se", and it is common use to plot 2 (or 1.96) times the standard error to get an 95% confidence interval, so replace "fun.arg = 1" with "fun.arg = 2".
 ```{r, eval=FALSE}
   geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3 ) 
 
 ```
+Wanneer de data niet normaal verdeeld is dan zijn de gemiddeldes en standaarddeviaties of standdaardfouten geen goede representiatie van de data. In dat geval is het gebruikelijker om de data in een boxplot weer te geven met mediaan en quantielafstanden.
+```{r}
+ggplot(data.long, aes(x=time, y=score, fill=time) ) +  
+  # plot een boxplot, outlier.shape = NA onderdrukt het plotten van de outliers 
+  # (geom_points plot alle datapunten)
+  geom_boxplot(outlier.shape = NA) +                          
+  # voegt 'balkjes'errorbars' aan het einde van de whiskers toe
+  stat_boxplot(geom="errorbar", width=.3) +
+  # plot alle individuele datapunten
+  geom_point(position=position_jitter(width=.2,seed = 1))
+```
+
 
 ***
 \newpage
 
-##  Correlatie
-***  
-\newpage
+##  Correlatie & Regressie
+Wanneer je de relatie tussen twee continue variabelen onderzoekt kun je een correlatie of lineaire regressie analyse gebruiken. Een correlatietoets geeft aan of beide variabelen samenhangen, terwijl een regressie een predictiemodel toetst. In de pratkijk geven beide statistisch gezien hetzelde resultaat maar verschillen ze in de hypothese die je toetst en de conclusies die je kunt trekken.
+Bij een correlatie is het daarom gebruikelijk om de correlatiecoefficient *r* te rapporteren, terwijl het bij een regressie gebruikelijk is om de regressie coefficienten (intercept & helling; $alpha$ en $beta$) te rapporteren in de vorm van het predictiemodel.
 
-##  Regressie
+ 
+```{r}
+# generate data
+set.seed(05)
+nrobs = 100
+experience = rnorm(n = nrobs, mean = 15, sd = 3)
+salary     = 10000 + ( 5 * experience ) + rnorm(n = nrobs, mean = 0, sd = 100)
+data = data.frame(experience, salary)
+# calculate correlation coefficient r
+corr_coef = cor(x = data$experience, y = data$salary)
+```
+Correlatieplot:
+```{r}
+ggplot(data = data, aes(x = experience, y = salary)) +
+  geom_point() +  # plot the datapoints
+  # add a linear regression line with 95% confidence interval
+  geom_smooth(method='lm', se=TRUE, level=0.95) +
+  # plot the correlation coefficient into to figure
+  geom_text(x = 9, y = 10275, color="blue", 
+            label = paste("r =", as.character(round(corr_coef,3))))
+```
+Regressieplot:
+```{r}
+# apply linear regression and obtain regression coefficients
+lin_mod = summary(lm(data = data, formula = salary~experience))
+alpha = round(lin_mod$coefficients[1],2)
+beta  = round(lin_mod$coefficients[2],2)
+corr_coef = round(sqrt(lin_mod$r.squared),3)
+
+# create figure  
+ggplot(data = data, aes(x = experience, y = salary)) +
+  geom_point() +  # plot the datapoints
+  # add a linear regression line with 95% confidence interval
+  geom_smooth(method='lm', se=TRUE, level=0.95) +
+  # plot the correlation coefficient into to figure
+  geom_text(x = 12, y = 10275, color="blue", 
+            label = paste("salary = ", alpha, "+", beta,"*","experience, r =",corr_coef))
+```
+
 ***  
 \newpage
 
@@ -132,15 +243,22 @@ ggplot(data.long, aes(x=cond, y=score, fill=cond) ) +
 set.seed(01)   # set seed
 nrofcondsf1 = 3  # set number of conditions for factor 1
 nrofcondsf2 = 2  # set number of conditions for factor 2
-nrofsubs    = nrofcondsf1*nrofcondsf2*10 # set number of subjects per condition
+nrofsubs    = nrofcondsf1*nrofcondsf2*30 # set number of subjects per condition
 subj = as.factor(1:(nrofsubs))      # create array with subject IDs
-treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs/nrofcondsf1))   # create array witht treatment conditions
-control   = as.factor(rep(c("control","experimental"),times=nrofsubs/nrofcondsf2))   # create array with control / experimental
+# create array witht treatment conditions
+treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs/nrofcondsf1))   
+# create array with control / experimental
+control   = as.factor(rep(c("control","experimental"),times=nrofsubs/nrofcondsf2))   
+# create array with measurement values
 score = as.vector( replicate(nrofcondsf1, replicate ( 
-          nrofcondsf2 , rnorm(n = (nrofsubs/(nrofcondsf1*nrofcondsf2)), mean = sample(14,1)+10 , sd = sample(5,1) ) 
-        ) ) )                                    # create array with measurement values
-data.long = data.frame(subj, score, treatment, control);      # combine arrays into a data.frame
-rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+          nrofcondsf2 , rnorm(
+            n = (nrofsubs/(nrofcondsf1*nrofcondsf2)), 
+            mean = 0 , sd = sample(5,1) ) + sample(8,1)+10
+        ) ) )                             
+# combine arrays into a data.frame
+data.long = data.frame(subj, score, treatment, control);      
+# delete unnecessary arrays
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
 ```
 
 ```{r}
@@ -148,8 +266,37 @@ ggplot(data.long, aes(x=treatment, y=score, fill=control) ) +
   geom_bar     ( stat = "summary", fun.y    = "mean" , position = "dodge") + 
   geom_errorbar( stat = "summary", fun.data = "mean_se", fun.args = 2, width = 0.3, 
                  position = position_dodge(width=.9) ) + 
-  geom_point  ( position = position_jitterdodge(jitter.width = .1) )
+  geom_point  ( position = position_jitterdodge(jitter.width = .2) )
 ```
+```{r, echo=TRUE}
+set.seed(01)   # set seed
+nrofcondsf1 = 3  # set number of conditions for factor 1
+nrofcondsf2 = 2  # set number of conditions for factor 2
+nrofsubs    = nrofcondsf1*nrofcondsf2*20 # set number of subjects per condition
+subj = as.factor(1:(nrofsubs))      # create array with subject IDs
+# create array witht treatment conditions
+treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs/nrofcondsf1))   
+# create array with control / experimental
+control   = as.factor(rep(c("control","experimental"),times=nrofsubs/nrofcondsf2))   
+# create array with measurement values
+score = as.vector( replicate(nrofcondsf1, replicate ( 
+          nrofcondsf2 , rchisq(
+            n = (nrofsubs/(nrofcondsf1*nrofcondsf2)), 
+            df = 3)  
+        )+  sample(14,1)+10  ) )                             
+# combine arrays into a data.frame
+data.long = data.frame(subj, score, treatment, control);      
+# delete unnecessary arrays
+#rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
+```
+
+```{r}
+ggplot(data.long, aes(x=treatment, y=score, fill=control) ) + 
+  geom_boxplot (outlier.shape = NA) + 
+  stat_boxplot(geom="errorbar", width=.3, position = position_dodge(.75) ) +
+  geom_point  ( position = position_jitterdodge(jitter.width = .2) )
+```
+
 
 ***  
 \newpage  
@@ -173,9 +320,9 @@ rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
 ggplot(data.long, aes(x=cond, y=score, group=1, colour=subj)) + 
   geom_point   () +
   geom_line    ( linetype= "dashed", aes(group=subj) ) +
-  geom_line    ( stat = "summary", fun.y = "mean",       size=2, colour = "black", linetype= "solid" ) +
-  geom_point   ( stat = "summary", fun.y = "mean",       size=2, colour = "black" ) +
-  geom_errorbar( stat = "summary", fun.data = "mean_se", size=1, fun.args = 2, width = 0.3 )
+  geom_line    ( stat="summary", fun.y="mean",       size=2, colour="black", linetype="solid") +
+  geom_point   ( stat="summary", fun.y="mean",       size=2, colour="black" ) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3 )
 ```  
 
 ***  
@@ -189,23 +336,33 @@ set.seed(02)  # set seed
 nrofcondsf1 = 3  # set number of conditions for factor 1
 nrofcondsf2 = 2  # set number of conditions for factor 2
 nrofsubs    = 10 # set number of subjects 
-subj = as.factor(rep(1:(nrofsubs),times=nrofcondsf1*nrofcondsf2))    # create array with subject IDs
-treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs*nrofcondsf2))   # create array witht treatment conditions
-control   = as.factor(rep(rep(c("control","experimental"),each=nrofsubs),times=nrofcondsf1))   # create array with control / experimental
-score = as.vector( replicate(nrofcondsf1, replicate(nrofcondsf2,    # create array with measurement values
-                             rnorm(n = (nrofsubs), mean = sample(14,1)+10 , sd = sample(5,1)                
+# create array with subject IDs
+subj = as.factor(rep(1:(nrofsubs),times=nrofcondsf1*nrofcondsf2))    
+# create array witht treatment conditions
+treatment = as.factor(rep(LETTERS[1:nrofcondsf1],each=nrofsubs*nrofcondsf2))   
+# create array with control / experimental
+control   = as.factor(
+  rep(rep(c("control","experimental"),each=nrofsubs),times=nrofcondsf1))  
+# create array with measurement values
+score = as.vector( replicate(nrofcondsf1,        
+                   replicate(nrofcondsf2,    
+                   rnorm(n = (nrofsubs), mean = sample(14,1)+10 , sd = sample(5,1)        
                                    ) ) ) )                  
-data.long = data.frame(subj, score, treatment, control);      # combine arrays into a data.frame
-rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+# combine arrays into a data.frame
+data.long = data.frame(subj, score, treatment, control);      
+# delete arrays
+rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
 ```
 
 ```{r}
 ggplot(data.long, aes(x=treatment, y=score, group=control, colour=control)) + 
   geom_point   (size=1)  +
   geom_line    (linetype="dashed" ,aes(group=interaction(subj,control), alpha=.5)) +
-  geom_line    ( stat = "summary", fun.y    = "mean",    size=1.5 )  +
-  geom_point   ( stat = "summary", fun.y    = "mean",    size=2 ) +
-  geom_errorbar( stat = "summary", fun.data = "mean_se", size=1, fun.args = 2, width = 0.3)
+  geom_line    ( stat="summary", fun.y   ="mean",    size=1.5 )  +
+  geom_point   ( stat="summary", fun.y   ="mean",    size=2 ) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3)
 ```
   
 ***  
+
+
