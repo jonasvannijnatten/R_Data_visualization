@@ -114,8 +114,6 @@ src="https://www.youtube.com/embed/PiY9hwOkL8U">
 # Voorbeelden  
 
 ##  T-test
-De data moeten in het **long format** staan zoals hieronder weergegeven:
-
 <details><summary><span style="color:dodgerBlue">Toon code om voorbeeld data te genereren </span></summary>
 ```{r}
 # generate data
@@ -234,8 +232,6 @@ ggplot(data = data.long, aes(x = experience, y = salary)) +
 \newpage
 
 ##  One-way independent samples ANOVA
-De data dient in het **long format** te staan zoals hieronder weergegeven.   
-
 <details><summary><span style="color:dodgerBlue">Toon code om voorbeeld data te genereren </span></summary>
 ```{r, echo=TRUE}
 set.seed(05)   # set seed
