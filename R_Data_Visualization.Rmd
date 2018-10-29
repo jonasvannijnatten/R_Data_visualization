@@ -46,17 +46,17 @@ software versies gebruikt voor deze handleiding:
 ##  Installatie
 Benodigde packages downloaden & installeren:
 ```{r, eval = FALSE, echo=TRUE, results='hide', message=FALSE}
-install.packages(pkgs="ggplot2", repos = "https://www.freestatistics.org/cran/")
-install.packages(pkgs="Hmisc",   repos = "https://www.freestatistics.org/cran/")
-install.packages(pkgs="knitr",   repos = "https://www.freestatistics.org/cran/")
-install.packages("kableExtra",   repos = "https://www.freestatistics.org/cran/")
+install.packages(pkgs="ggplot2",      repos="https://www.freestatistics.org/cran/")
+install.packages(pkgs="Hmisc",        repos="https://www.freestatistics.org/cran/")
+install.packages(pkgs="knitr",        repos="https://www.freestatistics.org/cran/")
+install.packages(pkgs="kableExtra",   repos="https://www.freestatistics.org/cran/")
 ```
 Benodigde packages activeren:
 ```{r, eval=TRUE, message=FALSE}
 library(package=Hmisc)
 library(package=ggplot2)
-library(knitr)
-library(kableExtra)
+library(package=knitr)
+library(package=kableExtra)
 ```
 
 ***
@@ -285,7 +285,7 @@ score = as.vector( replicate(nrofcondsf1, replicate (
 # combine arrays into a data.frame
 data.long = data.frame(subj, score, treatment, control);      
 # delete unnecessary arrays
-rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
+rm(list=c("control","nrofcondsf1","nrofcondsf2","nrofsubs","score","subj","treatment"))
 
 ```   
 </details>     
@@ -324,7 +324,7 @@ score = as.vector( replicate(nrofcondsf1, replicate (
 # combine arrays into a data.frame
 data.long = data.frame(subj, score, treatment, control);      
 # delete unnecessary arrays
-#rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
+rm(list=c("control","nrofcondsf1","nrofcondsf2","nrofsubs","score","subj","treatment"))
 ```
 </details>   
 
@@ -352,7 +352,7 @@ score = as.vector( replicate(
           nrofconds , rnorm(n = nrofsubs, mean = sample(8,1)+10 , sd = sample(5,1) ) 
         ) )                                     # create array with measurement values
 data.long = data.frame(subj, cond, score);      # combine arrays into a data.frame
-rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds"))) # delete arrays
+rm(list=c("cond","nrofconds","nrofsubs","score","subj")) # delete arrays
 ```
 </details>  
 
@@ -399,7 +399,7 @@ score = as.vector( replicate(nrofcondsf1,
 # combine arrays into a data.frame
 data.long = data.frame(subj, score, treatment, control);      
 # delete arrays
-rm(list=setdiff(ls(), c("data.long", "nrofsubs","nrofconds")))
+rm(list=c("control","nrofcondsf1","nrofcondsf2","nrofsubs", "score", "subj", "treatment"))
 ```
 </details>   
 
