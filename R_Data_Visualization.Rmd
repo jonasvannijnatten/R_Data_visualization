@@ -7,6 +7,8 @@ output:
     number_sections: yes
     toc: yes
     toc_depth: 2
+    toc_float:
+      toc_collapsed: true 
     css: styles.css
   pdf_document:
     fig_caption: yes
@@ -47,10 +49,10 @@ software versies gebruikt voor deze handleiding:
 ##  Installatie
 Benodigde packages downloaden & installeren:
 ```{r, eval = FALSE, echo=TRUE, results='hide', message=FALSE}
-install.packages(pkgs="ggplot2",      repos="https://www.freestatistics.org/cran/")
-install.packages(pkgs="Hmisc",        repos="https://www.freestatistics.org/cran/")
-install.packages(pkgs="knitr",        repos="https://www.freestatistics.org/cran/")
-install.packages(pkgs="kableExtra",   repos="https://www.freestatistics.org/cran/")
+install.packages(pkgs="ggplot2",  )
+install.packages(pkgs="Hmisc",    )
+install.packages(pkgs="knitr",    )
+install.packages(pkgs="kableExtra")
 ```
 Benodigde packages activeren:
 ```{r, eval=TRUE, message=FALSE}
@@ -148,7 +150,7 @@ kable(data.long[c(1:5,41:45),], row.names = FALSE, caption = 'data.long') %>%
 # plot means and standard deviations
 ggplot(data.long, aes(x=time, y=score, fill=time) ) +
   # plot de gemiddeldes voor iedere conditie als bargraph
-  geom_bar     ( stat = "summary", fun.y    = "mean" ) +
+  stat_summary   ( geom = "bar", fun    = "mean" ) +
   # voeg errobars toe aan de bargraph
   geom_errorbar( stat = "summary", fun.data = "mean_sdl", fun.args = 1, width = 0.3 ) +
   # plot alle individuele datapunten
