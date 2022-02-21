@@ -119,12 +119,12 @@ ggplot(myData, aes(x=varX, y=varY)) + geom_point(col="blue", size=4) + geom_line
 
 Uitleg van de *grammatica van figuren*:  
  <iframe width="500" height="300"
-src="https://www.youtube.com/embed/uiTc55clwuA">
+src="https://www.youtube.com/embed/uiTc55clwuA" data-external= "1">
 </iframe>
 
 Uitleg van de lagen waaruit een figuur is opgebouwd:   
  <iframe width="500" height="300"
-src="https://www.youtube.com/embed/PiY9hwOkL8U">
+src="https://www.youtube.com/embed/PiY9hwOkL8U" data-external= "1">
 </iframe>
 
 
