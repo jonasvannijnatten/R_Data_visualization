@@ -23,6 +23,23 @@ header-includes:
 - \geometry{a4paper, portrait, margin=.75in}
 ---
 
+```{css, echo=FALSE}
+body .main-container{
+  max-width: 2500px;
+  width: 90%;
+  margin: auto;
+ padding: 1em;
+ line-height: 20px ; 
+}   
+
+body {
+  max-width: 2500px;
+  width: 90%;
+  margin: auto;
+ padding: 1em;
+ line-height: 20px ; 
+}   
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
