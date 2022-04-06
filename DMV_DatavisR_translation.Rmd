@@ -1,0 +1,293 @@
+---
+title: "Datavisualization in R"
+author: "V I C Smit, MSc."
+date: "3/4/2022"
+output: 
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+    toc_float: 
+      toc_collapsed: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Introduction
+
+This document is primarily based on the document 'R - Datavisualisatie', by J. J. van Nijnatten. We are grateful for his input and allowing us to translate this document. The original (Dutch) version of this document can be found at [this link](https://jonasvannijnatten.github.io/R_Data_visualization/R_Data_Visualization.html). 
+
+This document makes more extensive use of the tidyverse packages, particularly the magrittr pipe operator. 
+
+
+
+# Software
+
+This document was created using R version 4.1.0, for more technical details on the version and packages see the 'Versions' section. 
+
+
+
+## Versions 
+
+```{r}
+sessionInfo()
+```
+## Installing packages
+
+The tidyverse package is extensively used, particularly the margrittr package and the ggplot2 package (both part of the tidyverse). 
+
+```{r, eval=FALSE}
+install.packages('tidyverse')
+```
+
+
+## Building figures using ggplot2
+
+Figures built with the ggplot2 package (part of the tidyverse library), is built using the grammar of graphics and contains multiple layers: data, aesthetics and geometries, abbreviated to:
+
+-   Data: the dataset that you want to visualize
+
+-   Aes: which variables determine the axes, subplots, colours and symbols
+
+-   Geom: the general shape of the data (lines, bargraph, boxplot, etc).
+
+Let's illustrate this with an example. In this first figure, we observe that the axes have been created with the (random) data from dataset Data_1, however, we have not yet specified our shape, or geom.
+
+```{r}
+set.seed(18101996)
+Data_1 <- data.frame(varX = rnorm(10, 10, 2), varY = rnorm(10, 35, 5))
+ggplot(Data_1, aes(x = varX, y = varY))
+
+```
+
+We can specify that we want a scatterplot with geom_point, note that the aesthetics are inherited from the ggplot command (that is, you can also specify them in the geom_point).
+
+```{r}
+ggplot(Data_1, aes(x = varX, y = varY)) + 
+  geom_point()
+
+```
+
+You can check out the ggplot2 references to see which datavisualizations are avaible.
+
+# Common examples
+
+## T-tests
+
+First, we generate some random data and bring it into long format, since ggplot2 requires long format data. You can use the tidyverse pivot longer function, alternatively you might want to consider the reshape function.
+
+```{r}
+Data_2_wide <- data.frame(pre = rnorm(40, 25, 6.5), 
+                        post =  rnorm(40, 35, 6.5))
+
+Data_2 <- Data_2_wide %>% 
+  pivot_longer(pre:post, 
+               names_to = "group", 
+               values_to = "score")
+```
+
+We can now create a bargraph with jittered points and error bars. Note that ggplot2 by default will fill the colours, however you can specify them manually (through scale_fill_manual) or install the ggthemes package to have access to colourblind pallettes. The final line of code ensures that the vertical axes starts at 0. The scattered points will be useful for data exploration, but a final paper (likely) will not contain individual datapoints. 
+
+```{r}
+ggplot(Data_2, aes(x = group, y = score, fill = group)) + 
+  geom_bar(stat = "summary", fun= "mean") + 
+  geom_errorbar(stat = "summary", width = 0.3) + 
+  geom_point(position = position_jitter(width = .2, seed = 1)) + 
+  scale_y_continuous(limits=c(0, NA), expand = c(0, 0))
+
+```
+
+When data is not normally distributed, consider using a boxplot (or violinplot) to show the distributions.
+
+```{r}
+ggplot(Data_2, aes(x = group, y = score, fill = group)) + 
+  geom_boxplot() + 
+  stat_boxplot(geom="errorbar", width=.3)+
+  geom_point(position = position_jitter(width = .2, seed = 1)) + 
+  scale_y_continuous(limits=c(0, 60), expand = c(0, 0))
+
+```
+
+## Correlation and regression
+
+When you are researching the relationship between two continuous variables, the most common statistical methods include testing for correlation or regression. While based on the same linear model, the hypotheses differ slightly. Both can effectively be visualised by a scatterplot, for regressions you may want to add the predicted regression equation.
+
+```{r}
+experience = rnorm(100, mean =15, sd =3)
+salary = 10000 + (5 * experience) + rnorm(100, mean = 0, sd = 100)
+Data_3 <- data.frame(experience = experience, salary = salary)
+
+```
+
+For correlation, we add the correlation in our visualization. This can be done with the 'geom text', where the position is hardcoded and the label contains the correlation coefficient. 
+
+```{r}
+ggplot(Data_3, aes(x = experience, y = salary)) + 
+  geom_point() + 
+  geom_text(x = 9, y = 10300, label = paste("r = ", as.character(round(cor(experience, salary), 3))))
+```
+
+```{r}
+Model_3 <- summary(lm(data= Data_3, salary~experience))
+Beta_0 <- round(Model_3$coefficients[1], 2)
+Beta_1 <- round(Model_3$coefficients[2], 2)
+Corrcoef <- round(sqrt(Model_3$r.squared), 3)
+
+
+ggplot(Data_3, aes(x = experience, y = salary)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = TRUE, level = 0.95)+ 
+  geom_text(x = 10, y = 10400, label = paste("salary = ", Beta_0, "+", Beta_1, "* experience, r = ", Corrcoef))
+                                            
+```
+
+## One-way independent samples ANOVA
+
+```{r}
+
+
+Data_4 <- data.frame(condition_1 = rnorm(20, mean = 10, sd = 2), 
+                     condition_2 = rnorm(20, mean = 20, sd = 4), 
+                     condition_3 = rnorm(20, mean = 25, sd = 3))
+                      
+
+Data_4 %>% 
+  pivot_longer(condition_1:condition_3, 
+               names_to = "condition", 
+               values_to = "score") %>%
+  ggplot(aes(x = condition, y = score, fill = condition)) + 
+  geom_bar(stat = "summary") + 
+  geom_errorbar(stat = 'summary', width = 0.3) +
+  geom_point(position = position_jitter(width = .2, seed = 1)) + 
+  scale_y_continuous(limits = c(0, NA), expand = c(0, 0))
+
+
+```
+
+## Factoral independent samples ANOVA
+
+```{r}
+Data_5 <- data.frame(condition = rep(c("Experimental", "Control"), times = 30),
+                     treatment = rep(c("A", "B", "C"), times = 20),
+                     score = as.vector(replicate(
+  2, 
+  replicate(3, rnorm(60/6, mean = 0, sd = sample(5, 1)) + sample(8, 1) + 10 ))))
+```
+
+```{r}
+Data_5 %>% 
+  ggplot(aes(x = treatment, y = score, fill = condition)) + 
+  geom_bar(stat = "summary", position = "dodge") + 
+  geom_errorbar(stat = 'summary', width = 0.3, position =position_dodge(width=.9) ) +
+  geom_point(position = position_jitterdodge(.2)) + 
+  scale_y_continuous(limits = c(0, NA), expand = c(0, 0))
+```
+
+```{r}
+Data_5 %>% 
+  ggplot(aes(x = treatment, y = score, fill = condition)) + 
+  geom_boxplot(outlier.shape = NA) + 
+  stat_boxplot(geom="errorbar", width=.3, position = position_dodge(.75)  ) +
+  geom_point(position = position_jitterdodge(.2)) + 
+  scale_y_continuous(limits = c(0, NA), expand = c(0, 0))
+```
+
+
+## One-way repeated measures ANOVA
+
+We once again start with generating a random dataset, where there are three conditions and 20 participants in the research design. 
+
+```{r}
+Data_6 <- 
+  data.frame(
+    subject = as.factor(rep(1:20, 3)), 
+    condition = as.factor(rep(LETTERS[1:3], each = 20)),
+    score = as.vector( replicate(
+          3 , rnorm(n = 20, mean = sample(8,1)+10 , sd = sample(5,1) ))))
+```
+
+In this plot, we remove the legend since this will be cluttering. All dashed lines are participants. 
+
+```{r}
+Data_6 %>% 
+  ggplot(aes(x = condition, y = score, group = 1, colour = subject))  + 
+  geom_line    ( linetype= "dashed", aes(group=subject) ) +
+  stat_summary ( geom = "line",  fun    = "mean" ,    size=2, colour="black", linetype="solid") +
+  stat_summary ( geom = "point", fun    = "mean" ,    size=2, colour="black") +
+  geom_errorbar( stat="summary", fun.data="mean_se",  size=1, fun.args = 2, width = 0.3 ) +
+  guides(color = "none")
+
+```
+
+
+## Factorial repeated measures ANOVA
+
+```{r}
+Data_7 <-  data.frame(subject = as.factor(rep(1:20, times = 3*2)),
+                      score = as.vector(replicate(2, 
+                                        replicate(3, 
+                                        rnorm(n = 20, mean = sample(14, 1)+10, sd = sample(5, 1))))) , 
+                      treatment = as.factor(rep(LETTERS[1:3], each = 20*2)), 
+                      condition = rep(rep(c("control", "experimental"), each = 20), times = 3))
+```
+
+
+```{r}
+Data_7 %>% 
+ggplot( aes(x=treatment, y=score, group=condition, colour=condition)) +
+  geom_point   (size=1)  +
+  geom_line    (linetype="dashed" ,aes(group=interaction(subject,condition)), alpha=.5) + 
+  stat_summary ( geom="line", fun = "mean", size=1.5) +
+  stat_summary ( geom="point", fun = "mean", size=2) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3) 
+```
+
+# Formatting tips
+
+Some writing guides, such as APA, discourage the use of colours when creating plots as they may not be distinguisable when printed in black & white. You can manually scale the colours to gray. Additionally to remove gridlines (clutter), you may want to consider using the classic theme. 
+
+```{r}
+Data_7 %>% 
+ggplot( aes(x=treatment, y=score, group=condition, colour=condition)) +
+  geom_point   (size=1)  +
+  geom_line    (linetype="dashed" ,aes(group=interaction(subject,condition)), alpha=.5) + 
+  stat_summary ( geom="line", fun = "mean", size=1.5) +
+  stat_summary ( geom="point", fun = "mean", size=2) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3) +
+  scale_colour_grey(start = 0.40, end = 0.8) + 
+  theme_classic()
+```
+
+
+You can also manually adjust titles of legends (or even remove them all together). 
+
+```{r}
+Data_7 %>% 
+ggplot( aes(x=treatment, y=score, group=condition, colour=condition)) +
+  geom_point   (size=1)  +
+  geom_line    (linetype="dashed" ,aes(group=interaction(subject,condition)), alpha=.5) + 
+  stat_summary ( geom="line", fun = "mean", size=1.5) +
+  stat_summary ( geom="point", fun = "mean", size=2) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3) +
+  scale_colour_grey(start = 0.40, end = 0.8, name = "Condition") + 
+  theme_classic() 
+```
+```{r}
+Data_7 %>% 
+ggplot( aes(x=treatment, y=score, group=condition, colour=condition)) +
+  geom_point   (size=1)  +
+  geom_line    (linetype="dashed" ,aes(group=interaction(subject,condition)), alpha=.5) + 
+  stat_summary ( geom="line", fun = "mean", size=1.5) +
+  stat_summary ( geom="point", fun = "mean", size=2) +
+  geom_errorbar( stat="summary", fun.data="mean_se", size=1, fun.args = 2, width = 0.3) +
+  scale_colour_grey(start = 0.40, end = 0.8) + 
+  theme_classic() + 
+  theme(legend.title = element_blank())
+```
+
+When dealing with bar graphs you may, occassionally, have a missing bar since no data is available. Ggplot2 will try and correct this by making one of the available bars double in size. [This link](https://www.aj2duncan.com/blog/missing-data-ggplot2-barplots/) offers elegant solutions. 
+
