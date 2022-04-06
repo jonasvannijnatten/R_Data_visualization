@@ -1,5 +1,5 @@
 ---
-title: "Datavisualization in R"
+title: "Data visualization in R"
 author: "V I C Smit, MSc."
 date: "3/4/2022"
 output: 
